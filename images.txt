@@ -1,0 +1,11 @@
+rancher/coredns-coredns:1.8.0
+rancher/klipper-helm:v0.4.3
+rancher/klipper-lb:v0.1.2
+rancher/library-busybox:1.32.1
+rancher/library-traefik:1.7.19
+rancher/local-path-provisioner:v0.0.19
+rancher/metrics-server:v0.3.6
+rancher/pause:3.1
+kubernetesui/dashboard:v2.2.0
+kubernetesui/metrics-scraper:v1.0.6
+registry:2.7.1

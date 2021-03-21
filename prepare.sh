@@ -137,7 +137,7 @@ INSTALL_K3S_SKIP_ENABLE=true \
 	INSTALL_K3S_BIN_DIR=/opt/k3s/bin \
 	INSTALL_K3S_SELINUX_WARN=true \
 	INSTALL_K3S_SKIP_SELINUX_RPM=true \
-	/bin/sh ./install.sh 
+	/bin/sh ./_install.sh 
 
 
 echo "PATH=/opt/k3s/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin" >> /etc/systemd/system/k3s.service.env
