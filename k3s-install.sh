@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+CURDIR="`dirname \"$0\"`"
+
+
+
 export YUM="dnf"
 
 export REPO="docker.io/"
@@ -15,6 +19,10 @@ info() {
 os_setup(){
     info "Prepare environment"
     $YUM -y install conntrack-tools
+    
+    chmod +x ./charts/deploy_charts.sh
+    chmod +x ./_install.sh
+    chmod +x ./uninstall.sh
 }
 
 k3s_binaries() {
@@ -76,8 +84,8 @@ k3s_setup(){
     cp namespaces.yml /opt/k3s/setup
     cp security.yml /opt/k3s/setup
     
-    yes | cp -f charts/*.yaml /opt/k3s/setup
-    yes | cp -f charts/*.tgz /opt/k3s/setup
+    #yes | cp -f charts/*.yaml /opt/k3s/setup
+    #yes | cp -f charts/*.tgz /opt/k3s/setup
 }
 
 k3s_install(){
@@ -114,21 +122,30 @@ k3s_postinstall(){
     /opt/k3s/bin/kubectl apply -f /opt/k3s/setup/namespaces.yml
     /opt/k3s/bin/kubectl apply -f /opt/k3s/setup/security.yml
     
-    yes | cp -f /opt/k3s/setup/*.tgz /var/lib/rancher/k3s/server/static/charts/
-    yes | cp -f /opt/k3s/setup/*.yaml /var/lib/rancher/k3s/server/manifests/
+    #yes | cp -f /opt/k3s/setup/*.tgz /var/lib/rancher/k3s/server/static/charts/
+    #yes | cp -f /opt/k3s/setup/*.yaml /var/lib/rancher/k3s/server/manifests/
+    
+    ( exec ./charts/deploy_charts.sh )
 }
+
 k3s_logininfo(){
     info "k3s     dashboard at: https://dashboard.k3s.localhost/"
     info "traefik dashboard at: https://dashboard.k3s.localhost/"
     export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+    
+    info "Waiting for dashboard account to be created"
+    sleep 30
+    
     TOKENNAME=`/opt/k3s/bin/kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}"`
     info "Token entry to use is: $TOKENNAME"
     TOKEN=`/opt/k3s/bin/kubectl -n kubernetes-dashboard get secret $TOKENNAME -o jsonpath='{.data.token}'| base64 --decode`
     info "Token VALUE to use is: $TOKEN"
 }
 
-k3s_binaries "docker.io/" v1.20.4-k3s1 /opt/k3s/bin
-k3s_images "docker.io/"
+os_setup
+
+k3s_binaries $REPO v1.20.4-k3s1 /opt/k3s/bin
+k3s_images $REPO
 k3s_setup
 k3s_install /opt/k3s/bin
 k3s_start
