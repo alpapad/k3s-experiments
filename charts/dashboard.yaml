@@ -1,0 +1,21 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  chart: https://%{KUBERNETES_API}%/static/charts/kubernetes-dashboard-4.0.2.tgz
+  targetNamespace: kubernetes-dashboard
+  valuesContent: |-
+    extraArgs:
+      - --enable-skip-login
+      - --enable-insecure-login
+    serviceAccount:
+      create: true
+      name: admin-user
+    ingress:
+      enabled: true
+      hosts:
+        - dashboard.k3s.localhost
+    metricsScraper:
+      enabled: true

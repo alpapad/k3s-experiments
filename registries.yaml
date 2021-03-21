@@ -1,0 +1,6 @@
+mirrors:
+  registry.k3s.localhost:
+    endpoint:
+      - http://registry.k3s.localhost:80
+configs: {}
+auths: {}

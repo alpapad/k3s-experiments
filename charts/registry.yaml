@@ -1,0 +1,13 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: registry
+  namespace: kube-system
+spec:
+  chart: https://%{KUBERNETES_API}%/static/charts/docker-registry-1.10.1.tgz
+  targetNamespace: registry
+  valuesContent: |-
+    ingress:
+      enabled: true
+      hosts:
+        - registry.k3s.localhost
