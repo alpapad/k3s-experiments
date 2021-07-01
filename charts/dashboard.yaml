@@ -16,6 +16,6 @@ spec:
     ingress:
       enabled: true
       hosts:
-        - dashboard.k3s.localhost
+        - dashboard.k3s.local
     metricsScraper:
       enabled: true

@@ -9,3 +9,5 @@ rancher/pause:3.1
 kubernetesui/dashboard:v2.2.0
 kubernetesui/metrics-scraper:v1.0.6
 registry:2.7.1
+alpapad/nfs-subdir-external-provisioner:v4.0.2
+

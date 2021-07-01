@@ -51,10 +51,20 @@ ingress() {
 }
 
 
+nfs_provisioner() {
+    CHARTS=$1
+    MANIFESTS=$2
+
+    tar -cvzf ${CHARTS}/nfs-subdir-external-provisioner-4.0.2.tgz nfs-subdir-external-provisioner
+    cp nfs-provisioner.yaml ${MANIFESTS}/nfs-provisioner.yaml
+}
+
 dashboard  $CHARTS_BASE $MANIFESTS_BASE
 registry  $CHARTS_BASE $MANIFESTS_BASE
 ingress  $CHARTS_BASE $MANIFESTS_BASE
 #alertmanager $CHARTS_BASE $MANIFESTS_BASE
 #prometheus $CHARTS_BASE $MANIFESTS_BASE
+
+nfs_provisioner $CHARTS_BASE $MANIFESTS_BASE
 
 

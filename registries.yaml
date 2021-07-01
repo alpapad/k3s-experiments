@@ -1,6 +1,6 @@
 mirrors:
-  registry.k3s.localhost:
+  registry.k3s.local:
     endpoint:
-      - http://registry.k3s.localhost:80
+      - http://registry.k3s.local:80
 configs: {}
 auths: {}

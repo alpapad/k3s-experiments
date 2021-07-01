@@ -25,6 +25,50 @@ os_setup(){
     chmod +x ./uninstall.sh
 }
 
+
+nfs_server_setup(){
+  NFSDIR=$1
+
+  info "Setup NFS server using ${NFSDIR} as mount path"
+  mkdir -p ${NFSDIR}
+  chmod og+rwx ${NFSDIR}
+
+  $YUM -y install nfs-utils rpcbind
+
+  systemctl enable nfs-server
+  systemctl enable rpcbind
+  #systemctl enable nfs-lock
+  #systemctl enable nfs-idmap
+
+  systemctl start rpcbind
+  systemctl start nfs-server
+  #systemctl start nfs-lock
+  #systemctl start nfs-idmap
+
+  systemctl status nfs-server
+
+  echo "${NFSDIR} *(all_squash,anonuid=99,anongid=99,rw,sync,no_subtree_check)" > /etc/exports
+
+  exportfs -r
+  systemctl restart nfs-server
+
+# firewall-cmd --add-service=nfs --zone=internal --permanent
+# firewall-cmd --add-service=mountd --zone=internal --permanent
+# firewall-cmd --add-service=rpc-bind --zone=internal --permanent
+
+}
+
+dns_server_setup(){
+  $YUM -y install unbound bind-utils
+
+ ( exec  ./unbound.sh )
+ 
+  systemctl enable unbound
+  systemctl start unbound
+
+  systemctl status unbound
+}
+
 k3s_binaries() {
     info "Extracting k3s:$2 to $3 (using repo $1)"
     REP=$1
@@ -129,13 +173,17 @@ k3s_postinstall(){
 }
 
 k3s_logininfo(){
-    info "k3s     dashboard at: https://dashboard.k3s.localhost/"
-    info "traefik dashboard at: https://dashboard.k3s.localhost/"
+    info "k3s     dashboard at: https://dashboard.k3s.local/"
+    info "traefik dashboard at: https://traefik.k3s.local/"
     export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
     
     info "Waiting for dashboard account to be created"
     sleep 30
-    
+
+    info "Making local-path storage class non default"
+
+    /opt/k3s/bin/kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'
+
     TOKENNAME=`/opt/k3s/bin/kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}"`
     info "Token entry to use is: $TOKENNAME"
     TOKEN=`/opt/k3s/bin/kubectl -n kubernetes-dashboard get secret $TOKENNAME -o jsonpath='{.data.token}'| base64 --decode`
@@ -144,10 +192,14 @@ k3s_logininfo(){
 
 os_setup
 
-k3s_binaries $REPO v1.20.4-k3s1 /opt/k3s/bin
+nfs_server_setup "/opt/nfsmount" 
+dns_server_setup
+
+k3s_binaries $REPO v1.20.6-k3s1 /opt/k3s/bin
 k3s_images $REPO
 k3s_setup
 k3s_install /opt/k3s/bin
 k3s_start
 k3s_postinstall
 k3s_logininfo
+

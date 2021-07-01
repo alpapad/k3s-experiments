@@ -13,7 +13,7 @@ spec:
       insecureSkipVerify: "true"
     dashboard:
       enabled: "true"
-      domain: "traefik.k3s.localhost"
+      domain: "traefik.k3s.local"
     metrics:
       prometheus:
         enabled: true

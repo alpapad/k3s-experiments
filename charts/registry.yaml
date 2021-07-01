@@ -10,4 +10,4 @@ spec:
     ingress:
       enabled: true
       hosts:
-        - registry.k3s.localhost
+        - registry.k3s.local
